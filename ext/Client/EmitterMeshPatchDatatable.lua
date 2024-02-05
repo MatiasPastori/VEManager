@@ -77,6 +77,7 @@ return {
 		['levels/xp1_001/objects/mattepainting_03_mesh'] = true,
 		['levels/xp1_001/objects/mattepainting_04_mesh'] = true,
 
+
 		-- XP1_002
 		['levels/xp1_002/objects/xp1_002__wave_01_mesh'] = true,
 
@@ -152,5 +153,13 @@ return {
 		['levels/xp5_002/lighting/ve_xp5_002_01'] = true,
 		['levels/xp5_003/lighting/ve_xp5_003_01'] = true,
 		['levels/xp5_004/lighting/ve_xp5_004_02'] = true
+	},
+
+	waterAssets = {
+		-- XP1_001
+		['levels/xp1_001/xpack1_001_terrain.water.mesh'] = true,
+
+		-- XP1_002
+		['levels/xp1_002/terrain_2/gulfterrain_03.water.mesh'] = true
 	}
 }

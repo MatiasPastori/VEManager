@@ -4,7 +4,7 @@
 VEManagerClient = class 'VEManagerClient'
 
 ---@type VEMLogger
-local m_VEMLogger = VEMLogger("VEManagerClient", true)
+local m_VEMLogger = VEMLogger("VEManagerClient", false)
 
 --#region Imports
 require "Types/VisualEnvironmentObject"

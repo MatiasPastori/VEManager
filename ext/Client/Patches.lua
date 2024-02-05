@@ -6,7 +6,15 @@ Patches = class('Patches')
 local m_PatchDatatable = require('EmitterMeshPatchDatatable')
 
 ---@type VEMLogger
-local m_VEMLogger = VEMLogger("Patches", false)
+local m_VEMLogger = VEMLogger("Patches", true)
+
+local XP1_001 = {
+	MainPartitionGuid = Guid("FAF35F00-5263-40A3-AB4D-67384BC2AD6D")
+}
+local XP1_002 = {
+	MainPartitionGuid = Guid("D658DDB6-0B1E-4555-ABB8-5BC931C48F16")
+}
+
 
 function Patches:__init()
 	m_VEMLogger:Write("Initializing Patches")
@@ -14,7 +22,11 @@ function Patches:__init()
 	-- Patch Menu Background
 	if VEM_CONFIG.PATCH_DN_COMPONENTS then
 		ResourceManager:RegisterInstanceLoadHandler(Guid("3A3E5533-4B2A-11E0-A20D-FE03F1AD0E2F"),
-		Guid("F26B7ECE-A71D-93AC-6C49-B6223BF424D6"), self, self._OnMenuBGLoaded)
+			Guid("F26B7ECE-A71D-93AC-6C49-B6223BF424D6"), self, self._OnMenuBGLoaded)
+		-- ResourceManager:RegisterInstanceLoadHandler(XP1_001.MainPartitionGuid,
+		-- 	Guid("BBA12DEB-BC7A-E7F7-5E0D-43DFAF4AFFF4"), self, self._OnKarkandOmandWaterLoaded)
+		-- ResourceManager:RegisterInstanceLoadHandler(XP1_002.MainPartitionGuid,
+		-- 	Guid("CAEA8375-0AFC-4367-D5AD-032158C1B13F"), self, self._OnKarkandOmandWaterLoaded)
 	end
 end
 
@@ -27,6 +39,24 @@ local function _PatchMeshAsset(p_Instance)
 			l_Material:MakeWritable()
 			l_Material.shader.shader = nil
 		end
+	end
+end
+
+---@param partition DatabasePartition
+local function _PatchWaterAsset(partition)
+	m_VEMLogger:Write("Starting to patch water asset")
+	m_VEMLogger:Write("The partition name" .. partition.name)
+
+	if m_PatchDatatable.waterAssets[partition.name] then
+		for _, instance in pairs(partition.instances) do
+			if instance:Is('LakeData') then
+				local lakeData = LakeData(instance)
+				lakeData:MakeWritable()
+				m_VEMLogger:Write(lakeData.shader3d)
+				lakeData.shader3d = nil
+			end
+		end
+		m_VEMLogger:Write("Water Assets patched")
 	end
 end
 
@@ -150,6 +180,8 @@ function Patches:PatchComponents(p_Partition)
 
 	if p_Partition.primaryInstance:Is("MeshAsset") then
 		_PatchMeshAsset(p_Partition.primaryInstance)
+	elseif p_Partition.primaryInstance:Is("WaterAsset") then
+		_PatchWaterAsset(p_Partition)
 	elseif p_Partition.primaryInstance:Is("ObjectVariation") then
 		for _, l_Instance in ipairs(p_Partition.instances) do
 			if l_Instance:Is('MeshMaterialVariation') then -- ObjectVariation is the primary instance
@@ -184,6 +216,15 @@ function Patches:_OnMenuBGLoaded(p_Instance)
 	s_MenuBg.priority = 100
 
 	m_VEMLogger:Write("Menu background patched (priority increased)")
+end
+
+function Patches:_OnKarkandOmandWaterLoaded(waterAssets)
+	for _, lakesAndWater in pairs(waterAssets.partition.instances) do
+		lakesAndWater:MakeWritable()
+		lakesAndWater.shader.shader = nil
+	end
+
+	m_VEMLogger:Write("Karkand/Oman water patched")
 end
 
 return Patches()
